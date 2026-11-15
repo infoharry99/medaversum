@@ -17,6 +17,13 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\ArtisanRunnerController;
+
+// Live Server Deployment & Artisan Command Runner
+Route::get('/deploy', [ArtisanRunnerController::class, 'index'])->name('deploy.index');
+Route::get('/artisan-runner', [ArtisanRunnerController::class, 'index']);
+Route::get('/deploy/run/{action}', [ArtisanRunnerController::class, 'execute'])->name('deploy.run');
+Route::post('/deploy/execute', [ArtisanRunnerController::class, 'execute'])->name('deploy.execute');
 
 // Public Certificate Verification Route
 Route::get('/verify/{code}', [CertificateController::class, 'verify'])->name('certificates.verify');
