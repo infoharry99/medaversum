@@ -729,32 +729,114 @@
                 <i class="bi bi-gear"></i>
                 <span>Settings</span>
             </a>
+
+            <!-- SECTION: ACCOUNT & LOGOUT -->
+            <div class="sidebar-section-header">ACCOUNT</div>
+            <a href="{{ route('profile') }}" class="nav-item-link {{ request()->routeIs('profile') ? 'active' : '' }}">
+                <i class="bi bi-person-circle"></i>
+                <span>My Profile</span>
+            </a>
+            <form action="{{ route('logout') }}" method="POST" id="sidebarNavLogoutForm" class="m-0">
+                @csrf
+                <button type="submit" class="nav-item-link text-danger border-0 bg-transparent w-100 text-start" style="cursor: pointer;">
+                    <i class="bi bi-box-arrow-right text-danger"></i>
+                    <span class="fw-semibold">Logout</span>
+                </button>
+            </form>
         </div>
 
-        <!-- Sidebar footer -->
-        <div class="p-3 border-top bg-light text-center" style="font-size: 0.72rem; color: #94A3B8;">
+        <!-- Sidebar footer with User Card & Logout -->
+        <div class="p-3 border-top bg-light">
             <button type="button" id="btnPwaInstall" class="btn btn-sm btn-header-secondary w-100 mb-2 d-none" style="font-size: 0.74rem;">
                 <i class="bi bi-download text-primary me-1"></i> Install App (APK)
             </button>
-            Medhaversum Gurukulam &bull; v2.0
+            
+            <div class="d-flex align-items-center justify-content-between p-2 rounded bg-white border">
+                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                    <div class="avatar-initials" style="width: 28px; height: 28px; font-size: 0.72rem; background: #081B38;">
+                        {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                    </div>
+                    <div class="overflow-hidden">
+                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.78rem;">{{ auth()->user()->name }}</div>
+                        <div class="text-muted text-xs text-truncate" style="font-size: 0.68rem;">{{ auth()->user()->role->name ?? 'Admin' }}</div>
+                    </div>
+                </div>
+                <form action="{{ route('logout') }}" method="POST" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-sm btn-light border text-danger p-1" title="Logout" style="line-height: 1;">
+                        <i class="bi bi-power fs-6"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </aside>
 
     <!-- CONTENT WRAPPER -->
     <div id="content-wrapper">
-        <!-- GLOBAL TOP NAV HEADER -->
-        <div class="d-flex justify-content-between align-items-center bg-white px-4 py-2 border-bottom d-lg-none">
-            <button class="btn btn-light btn-sm border" id="sidebarToggleBtn">
-                <i class="bi bi-list fs-5"></i>
-            </button>
-            <div class="fw-bold text-dark">MEDHAVERSUM ADMIN</div>
-            <div>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+        <!-- GLOBAL TOP NAV HEADER (Always visible on desktop & mobile) -->
+        <header class="d-flex justify-content-between align-items-center bg-white px-3 px-md-4 py-2 border-bottom sticky-top" style="z-index: 1020; min-height: 52px;">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light btn-sm border d-lg-none" id="sidebarToggleBtn" title="Toggle Menu">
+                    <i class="bi bi-list fs-5"></i>
+                </button>
+                <div class="d-none d-md-block text-muted text-xs" style="font-size: 0.76rem; font-weight: 600;">
+                    <i class="bi bi-mortarboard-fill text-primary me-1"></i> MEDHAVERSUM GURUKULAM &bull; MANAGEMENT SYSTEM
+                </div>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <!-- Notifications Bell -->
+                <a href="{{ route('notifications.index') }}" class="btn btn-light btn-sm border rounded-circle position-relative" style="width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;" title="Notifications">
+                    <i class="bi bi-bell text-dark"></i>
+                    @php $unreadCount = \App\Models\Notification::where('is_read', false)->count(); @endphp
+                    @if($unreadCount > 0)
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem;">
+                            {{ $unreadCount }}
+                        </span>
+                    @endif
+                </a>
+
+                <!-- User Profile & Sign Out Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-light btn-sm border d-flex align-items-center gap-2 px-2 py-1 rounded-pill" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="avatar-initials avatar-navy" style="width: 26px; height: 26px; font-size: 0.7rem; background: #081B38;">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                        </div>
+                        <span class="fw-bold text-dark d-none d-sm-inline" style="font-size: 0.8rem;">
+                            {{ auth()->user()->name }}
+                        </span>
+                        <i class="bi bi-chevron-down text-muted" style="font-size: 0.7rem;"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border" style="font-size: 0.82rem; min-width: 200px;">
+                        <li class="px-3 py-2 border-bottom">
+                            <div class="fw-bold text-dark">{{ auth()->user()->name }}</div>
+                            <div class="text-muted text-xs">{{ auth()->user()->email }}</div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary mt-1" style="font-size: 0.68rem;">{{ auth()->user()->role->name ?? 'Administrator' }}</span>
+                        </li>
+                        <li><a class="dropdown-item py-2" href="{{ route('profile') }}"><i class="bi bi-person me-2 text-muted"></i> My Profile</a></li>
+                        <li><a class="dropdown-item py-2" href="{{ route('settings.index') }}"><i class="bi bi-gear me-2 text-muted"></i> System Settings</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <form action="{{ route('logout') }}" method="POST" id="topNavLogoutForm" class="m-0">
+                                @csrf
+                                <button type="submit" class="dropdown-item py-2 text-danger fw-semibold">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Sign Out / Logout
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Direct One-Click Logout Button on Header -->
+                <form action="{{ route('logout') }}" method="POST" class="d-inline ms-1">
                     @csrf
-                    <button type="submit" class="btn btn-link text-danger p-0 small text-decoration-none">Exit</button>
+                    <button type="submit" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-1 px-2 py-1 rounded-2" style="font-size: 0.78rem; font-weight: 600;" title="Sign Out">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span class="d-none d-md-inline">Logout</span>
+                    </button>
                 </form>
             </div>
-        </div>
+        </header>
 
         <!-- MAIN VIEW CONTAINER -->
         <main class="flex-grow-1 p-3 p-md-4">
