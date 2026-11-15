@@ -25,13 +25,13 @@
             </div>
         @endif
 
-        <form action="{{ route('login.post') }}" method="POST">
+        <form action="{{ route('login.post') }}" method="POST" autocomplete="off">
             @csrf
             <div class="mb-3">
                 <label for="email" class="form-label">Email Address</label>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                    <input type="email" name="email" id="email" class="form-control border-start-0 @error('email') is-invalid @enderror" value="{{ old('email', 'admin@medhaversum.com') }}" required autofocus placeholder="Enter your email">
+                    <input type="email" name="email" id="email" class="form-control border-start-0 @error('email') is-invalid @enderror" value="{{ old('email') }}" required autofocus placeholder="Enter your email" autocomplete="off">
                 </div>
                 @error('email')
                     <div class="text-danger small mt-1">{{ $message }}</div>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="input-group">
                     <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-                    <input type="password" name="password" id="password" class="form-control border-start-0 @error('password') is-invalid @enderror" value="password" required placeholder="Enter password">
+                    <input type="password" name="password" id="password" class="form-control border-start-0 @error('password') is-invalid @enderror" value="" required placeholder="Enter password" autocomplete="new-password">
                 </div>
                 @error('password')
                     <div class="text-danger small mt-1">{{ $message }}</div>
@@ -53,7 +53,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="remember" id="remember" checked>
+                    <input class="form-check-input" type="checkbox" name="remember" id="remember">
                     <label class="form-check-label small text-muted" for="remember">
                         Remember me
                     </label>
@@ -65,24 +65,6 @@
                 <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Gurukulam Portal
             </button>
         </form>
-
-        <div class="demo-credentials">
-            <div class="fw-bold text-dark mb-1 d-flex align-items-center gap-1">
-                <i class="bi bi-key-fill text-warning"></i> Quick Demo Access:
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Super Admin:</span> <code>admin@medhaversum.com</code>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Counselor:</span> <code>counselor@medhaversum.com</code>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Accountant:</span> <code>accounts@medhaversum.com</code>
-            </div>
-            <div class="d-flex justify-content-between text-muted">
-                <span>Default Password:</span> <code>password</code>
-            </div>
-        </div>
     </div>
 
     <div class="auth-footer">
