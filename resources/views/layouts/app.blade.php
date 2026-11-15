@@ -7,6 +7,15 @@
     <title>@yield('title', 'Dashboard') - Medhaversum Gurukulam</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo.png') }}">
 
+    <!-- Progressive Web App (PWA / WebAPK) Meta Tags -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#081B38">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Medhaversum">
+    <link rel="apple-touch-icon" href="{{ asset('assets/images/icons/icon-192x192.png') }}">
+
     <!-- Google Fonts: Plus Jakarta Sans -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -724,6 +733,9 @@
 
         <!-- Sidebar footer -->
         <div class="p-3 border-top bg-light text-center" style="font-size: 0.72rem; color: #94A3B8;">
+            <button type="button" id="btnPwaInstall" class="btn btn-sm btn-header-secondary w-100 mb-2 d-none" style="font-size: 0.74rem;">
+                <i class="bi bi-download text-primary me-1"></i> Install App (APK)
+            </button>
             Medhaversum Gurukulam &bull; v2.0
         </div>
     </aside>
@@ -781,6 +793,17 @@
         </footer>
     </div>
 
+    <!-- PWA Install Banner (Floating on Mobile / Tablet) -->
+    <div id="pwaInstallBanner" class="position-fixed bottom-0 start-50 translate-middle-x mb-3 p-3 bg-white border shadow-lg rounded-3 d-none align-items-center gap-3 z-3" style="max-width: 440px; width: 92%; z-index: 9999;">
+        <img src="{{ asset('assets/images/icons/icon-96x96.png') }}" alt="App Icon" style="width: 44px; height: 44px; border-radius: 8px;">
+        <div class="flex-grow-1">
+            <div class="fw-bold text-dark" style="font-size: 0.85rem;">Install Medhaversum App</div>
+            <div class="text-muted text-xs" style="font-size: 0.72rem;">Install fast standalone APK on your device</div>
+        </div>
+        <button id="pwaBannerInstallBtn" class="btn btn-sm btn-header-primary px-3 py-1 text-nowrap">Install</button>
+        <button id="pwaBannerCloseBtn" class="btn-close" style="font-size: 0.7rem;"></button>
+    </div>
+
     <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -788,6 +811,42 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+        // Register PWA Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then((reg) => console.log('PWA ServiceWorker registered:', reg.scope))
+                    .catch((err) => console.log('PWA ServiceWorker error:', err));
+            });
+        }
+
+        // Handle PWA Install Prompt (Android APK / WebAPK install)
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            $('#btnPwaInstall').removeClass('d-none');
+            $('#pwaInstallBanner').removeClass('d-none').addClass('d-flex');
+        });
+
+        $(document).on('click', '#btnPwaInstall, #pwaBannerInstallBtn', function() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted PWA installation');
+                    }
+                    deferredPrompt = null;
+                    $('#btnPwaInstall').addClass('d-none');
+                    $('#pwaInstallBanner').removeClass('d-flex').addClass('d-none');
+                });
+            }
+        });
+
+        $('#pwaBannerCloseBtn').on('click', function() {
+            $('#pwaInstallBanner').removeClass('d-flex').addClass('d-none');
+        });
+
         // Sidebar In-line Menu Filter
         $('#sidebarSearch').on('keyup', function() {
             const val = $(this).val().toLowerCase();
