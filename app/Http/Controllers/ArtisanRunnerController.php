@@ -13,16 +13,24 @@ class ArtisanRunnerController extends Controller
      */
     protected function isAuthorized(Request $request): bool
     {
-        // 1. If user is logged in as Super Admin or Admin
-        if (auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->hasRole('admin'))) {
-            return true;
-        }
-
-        // 2. Secret key via URL query or header
+        // 1. Secret key via URL query or header (prioritized, works with 0 database tables)
         $validKey = config('app.artisan_key', env('ARTISAN_KEY', 'medaversum_live_2026'));
         $providedKey = $request->get('key') ?? $request->header('X-Artisan-Key');
 
-        return !empty($providedKey) && hash_equals($validKey, (string) $providedKey);
+        if (!empty($providedKey) && hash_equals($validKey, (string) $providedKey)) {
+            return true;
+        }
+
+        // 2. If user is logged in as Super Admin or Admin (safely guarded)
+        try {
+            if ($request->hasSession() && auth()->check() && (auth()->user()->isSuperAdmin() || auth()->user()->hasRole('admin'))) {
+                return true;
+            }
+        } catch (\Throwable $e) {
+            // Session or database table does not exist yet (e.g. initial setup)
+        }
+
+        return false;
     }
 
     /**
